@@ -23,7 +23,7 @@ def rdValidateOptionString(inVal):
 	
 def rdToolMethod(toolIndex):
 	srcName = noesis.getSelectedFile()
-	if not srcName or os.path.exists(srcName) is not True:
+	if not srcName or not os.path.exists(srcName):
 		noesis.messagePrompt("Selected file isn't readable through the standard filesystem.")
 		return 0
 
@@ -44,12 +44,17 @@ def rdToolMethod(toolIndex):
 	
 	rawData = rapi.loadIntoByteArray(srcName)
 	if format.startswith("bc"):
-		bcModeString = format[2:]
-		#could potentially use software decoder for more stuff here
+		bcModeString = format[2:].lower()
+		#could potentially use software decoder for more stuff (astc, pvrtc) here
 		bcModes = {
 			"1" : noesis.NOESISTEX_DXT1,
 			"2" : noesis.NOESISTEX_DXT3,
-			"3" : noesis.NOESISTEX_DXT5
+			"3" : noesis.NOESISTEX_DXT5,
+			"4" : noesis.FOURCC_ATI1,
+			"5" : noesis.FOURCC_ATI2,
+			"6" : noesis.FOURCC_BC6H,
+			"6s" : noesis.FOURCC_BC6S,
+			"7" : noesis.FOURCC_BC7
 		}
 		if bcModeString not in bcModes:
 			print("Unimplemented BC:", bcModeString, "Treating as BC1.")
@@ -61,7 +66,7 @@ def rdToolMethod(toolIndex):
 		
 	tex = NoeTexture(dstName, width, height, rgba, noesis.NOESISTEX_RGBA32)
 	
-	if noesis.saveImageRGBA(dstName, tex) is not True:
+	if not noesis.saveImageRGBA(dstName, tex):
 		noesis.messagePrompt("Error writing decoded image.")
 		return 0
 
