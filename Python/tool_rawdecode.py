@@ -17,7 +17,7 @@ def rdGetOptions(optionString):
 	
 def rdValidateOptionString(inVal):
 	options = rdGetOptions(inVal)
-	if not options:
+	if not options[0]:
 		return "Invalid format string."
 	return None
 	
