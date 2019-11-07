@@ -112,8 +112,11 @@ class SanaeParser(object):
             
             if uvBuff:
                 rapi.rpgBindUV1Buffer(uvBuff, noesis.RPGEODATA_FLOAT, 8)
-            
-            rapi.rpgCommitTriangles(idxBuff, noesis.RPGEODATA_UINT, numIdx, noesis.RPGEO_QUAD, 1)        
+            # RPGEO_QUAD, //ABC_DCB
+            # RPGEO_QUAD_ABC_BCD,
+            # RPGEO_QUAD_ABC_ACD,
+            # RPGEO_QUAD_ABC_DCA 
+            rapi.rpgCommitTriangles(idxBuff, noesis.RPGEODATA_UINT, numIdx, noesis.RPGEO_QUAD_ABC_ACD, 1)        
         
         
     def parse_materials(self, numMat):
