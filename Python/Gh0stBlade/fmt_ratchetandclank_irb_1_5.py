@@ -25,7 +25,9 @@ class irbFile(object):
 		rapi.rpgSetOption(noesis.RPGOPT_BIGENDIAN, 1)
 		self.texHashList = []
 		self.meshCount = -1
-		self.meshScale = -1
+		self.meshScaleX = -1
+		self.meshScaleY = -1
+		self.meshScaleZ = -1
 		self.inputPath = -1
 		self.boneList = []
 		self.boneMapInfo = []
@@ -76,11 +78,20 @@ class irbFile(object):
 		print("Mesh Count: " + str(self.meshCount))
 		print("Finished loading mesh count info!")
 		
-	def loadMeshScale(self, bs, entryOffset, entryFlags, entryCount, entrySize):
+	def loadMeshScaleV1(self, bs, entryOffset, entryFlags, entryCount, entrySize):
 		print("Loading Mesh Scale Info....")
 		bs.seek(entryOffset + 0x70, NOESEEK_ABS)
-		self.meshScale = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
-		print("The Mesh's scale is: " + str(self.meshScale))
+		self.meshScaleX = self.meshScaleY = self.meshScaleZ = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
+		print("The Mesh's scale is: " + str(self.meshScaleX))
+		print("Finished loading mesh scale!")
+
+	def loadMeshScaleV2(self, bs, entryOffset, entryFlags, entryCount, entrySize):
+		print("Loading Mesh Scale Info....")
+		bs.seek(entryOffset + 0x20, NOESEEK_ABS)
+		self.meshScaleX = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
+		self.meshScaleY = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
+		self.meshScaleZ = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
+		print("The Mesh's scale is: (" + str(self.meshScaleX) + ", " + str(self.meshScaleY) + ", " + str(self.meshScaleZ) + ")")
 		print("Finished loading mesh scale!")
 		
 	def loadMeshInputPath(self, bs, entryOffset, entryFlags, entryCount, entrySize):
@@ -245,7 +256,7 @@ class irbFile(object):
 		bs = self.inFile
 		rapi.rpgSetName("Mesh_" + str(index + 1))
 		rapi.rpgSetOption(noesis.RPGOPT_TRIWINDBACKWARD, 0)
-		rapi.rpgSetPosScaleBias((self.meshScale, self.meshScale, self.meshScale), (0, 0, 0))
+		rapi.rpgSetPosScaleBias((self.meshScaleX, self.meshScaleY, self.meshScaleZ), (0, 0, 0))
 			
 		if meshInfo[4] == 0:
 			#Vertices
@@ -278,7 +289,7 @@ class irbFile(object):
 			#Faces
 			fs = NoeBitStream(self.faceBuff, NOE_BIGENDIAN)
 			fs.seek(meshInfo[0] * 0x2, NOESEEK_ABS)
-			faceBuff = fs.readBytes(meshInfo[8] * 0x2)	
+			faceBuff = fs.readBytes(meshInfo[8] * 0x2)
 			
 			#Bone Map
 			if meshInfo[9] != 0:
@@ -295,8 +306,7 @@ class irbFile(object):
 	def buildMeshV2(self, meshInfo, index):
 		bs = self.inFile
 		rapi.rpgSetName("Mesh_" + str(index + 1))
-		rapi.rpgSetOption(noesis.RPGOPT_TRIWINDBACKWARD, 1)
-		rapi.rpgSetPosScaleBias((self.meshScale, self.meshScale, self.meshScale), (0, 0, 0))
+		rapi.rpgSetPosScaleBias((self.meshScaleX, self.meshScaleY, self.meshScaleZ), (0, 0, 0))
 		
 		meshInfo[4] = 0x0 #TEMP, not tested for any other vert types! plus [i][4] won't match!
 		
@@ -332,10 +342,11 @@ irbEntryTypeList = {
 0x3000		:	irbFile.loadMeshVertices,
 0x3200		:	irbFile.loadMeshFaceIndices,
 0x3300		:	irbFile.loadMeshInfoV2,
+0x3400		:	irbFile.loadMeshScaleV2,
 0x3410		:	irbFile.loadMeshInputPath,
 0x5600		:	irbFile.loadMeshTexHash,
 0xD000		:	irbFile.loadMeshCount,
-0xD100		:	irbFile.loadMeshScale,
+0xD100		:	irbFile.loadMeshScaleV1,
 0xD200		:	irbFile.loadMeshInputPath,
 0xD300		:	irbFile.loadMeshBones,
 0xD700		:	irbFile.loadMeshBoneMap,
