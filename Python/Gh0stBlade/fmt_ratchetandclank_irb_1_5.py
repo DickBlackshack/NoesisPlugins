@@ -82,7 +82,7 @@ class irbFile(object):
 		print("Loading Mesh Scale Info....")
 		bs.seek(entryOffset + 0x70, NOESEEK_ABS)
 		self.meshScaleX = self.meshScaleY = self.meshScaleZ = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
-		print("The Mesh's scale is: " + str(self.meshScaleX))
+		print("The Mesh's scale is: (" + str(self.meshScaleX) + ", " + str(self.meshScaleY) + ", " + str(self.meshScaleZ) + ")")
 		print("Finished loading mesh scale!")
 
 	def loadMeshScaleV2(self, bs, entryOffset, entryFlags, entryCount, entrySize):
@@ -93,7 +93,7 @@ class irbFile(object):
 		self.meshScaleZ = struct.unpack('>f', (struct.pack('>I', bs.readInt() + 0x7800000)))[0]
 		print("The Mesh's scale is: (" + str(self.meshScaleX) + ", " + str(self.meshScaleY) + ", " + str(self.meshScaleZ) + ")")
 		print("Finished loading mesh scale!")
-		
+
 	def loadMeshInputPath(self, bs, entryOffset, entryFlags, entryCount, entrySize):
 		print("Loading Input Path....")
 		bs.seek(entryOffset, NOESEEK_ABS)
@@ -289,7 +289,7 @@ class irbFile(object):
 			#Faces
 			fs = NoeBitStream(self.faceBuff, NOE_BIGENDIAN)
 			fs.seek(meshInfo[0] * 0x2, NOESEEK_ABS)
-			faceBuff = fs.readBytes(meshInfo[8] * 0x2)
+			faceBuff = fs.readBytes(meshInfo[8] * 0x2)	
 			
 			#Bone Map
 			if meshInfo[9] != 0:
