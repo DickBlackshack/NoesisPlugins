@@ -297,7 +297,7 @@ class irbFile(object):
 			
 			rapi.rpgBindPositionBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x1C, 0x0)
 			rapi.rpgBindBoneIndexBufferOfs(vertBuff, noesis.RPGEODATA_UBYTE, 0x1C, 0x8, 4)
-			rapi.rpgBindBoneWeightBuffer(vertBuff, noesis.RPGEODATA_HALFFLOAT, 0x1C, 0xC)
+			rapi.rpgBindBoneWeightBufferOfs(vertBuff, noesis.RPGEODATA_UBYTE, 0x1C, 0x0C, 0x4)
 			rapi.rpgBindUV1BufferOfs(vertBuff, noesis.RPGEODATA_HALFFLOAT, 0x1C, 0x10)
 			rapi.rpgBindNormalBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x1C, 0x10)#FIXME
 			rapi.rpgCommitTriangles(faceBuff, noesis.RPGEODATA_USHORT, meshInfo[8], noesis.RPGEO_TRIANGLE, 1)
