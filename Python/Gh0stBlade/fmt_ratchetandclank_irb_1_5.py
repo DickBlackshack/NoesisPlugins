@@ -171,7 +171,7 @@ class irbFile(object):
 			meshUnk14 = bs.readUShort()
 			meshUnk15 = bs.readUShort()
 			meshUnk16 = bs.readUShort()
-									#0				   1			2			3			 4			5				6				  7			        8				9			10
+									#0				   1			2			3			 4			5				6			  7				        8				9			10
 			self.meshInfo.append([meshFaceStart, meshVertStart, meshMatID, meshVertCount, meshType, meshVertType, meshOffsetBoneMap, meshBoneMapIdx, meshFaceCount, meshBoneIdxCount, meshMatID])
 			
 			bidList = []
@@ -219,7 +219,7 @@ class irbFile(object):
 			meshUnk14 = bs.readUShort()
 			meshUnk15 = bs.readUShort()
 			meshUnk16 = bs.readUShort()
-									#0				   1			2				3			 4				5				6			  7		        8			9			10
+									#0				   1			2			3			 4			5				6			  7				        8				9			10
 			self.meshInfo.append([meshFaceStart, meshVertStart, meshVertStart2, meshVertCount, meshType, meshVertType, meshOffsetBoneMap, meshUnk03, meshFaceCount, meshUnk00, meshVertStart2])
 		print("Finished Loading Mesh Info!")
 		
@@ -255,7 +255,6 @@ class irbFile(object):
 	def buildMeshV1(self, meshInfo, index):
 		bs = self.inFile
 		rapi.rpgSetName("Mesh_" + str(index + 1))
-		rapi.rpgSetMaterial("Material_" + str(meshInfo[2]))
 		rapi.rpgSetOption(noesis.RPGOPT_TRIWINDBACKWARD, 0)
 		rapi.rpgSetPosScaleBias((self.meshScaleX, self.meshScaleY, self.meshScaleZ), (0, 0, 0))
 			
@@ -269,19 +268,16 @@ class irbFile(object):
 			fs = NoeBitStream(self.faceBuff, NOE_BIGENDIAN)
 			fs.seek(meshInfo[0] * 0x2, NOESEEK_ABS)
 			faceBuff = fs.readBytes(meshInfo[8] * 0x2)
-
+			
 			#Bone Map
 			if meshInfo[9] != 0:
 				rapi.rpgSetBoneMap(self.boneMap[meshInfo[7]][0])
-				fakeBoneBuffer = [0x00, 0xFF] * meshInfo[3]
-
+			
 			rapi.rpgBindPositionBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x14, 0x0)
 			rapi.rpgBindUV1BufferOfs(vertBuff, noesis.RPGEODATA_HALFFLOAT, 0x14, 0x8)
-			#rapi.rpgBindNormalBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x14, 0x8)#FIXME
-			if meshInfo[9] != 0:
-				rapi.rpgBindBoneIndexBufferOfs(bytes(fakeBoneBuffer), noesis.RPGEODATA_UBYTE, 0x2, 0x0, 0x1)
-				rapi.rpgBindBoneWeightBufferOfs(bytes(fakeBoneBuffer), noesis.RPGEODATA_UBYTE, 0x2, 0x1, 0x1)
-			
+			rapi.rpgBindNormalBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x14, 0x8)#FIXME
+			#rapi.rpgBindBoneIndexBufferOfs(self.boneMap[self.meshInfo[i][7]][0], noesis.RPGEODATA_UBYTE, self.meshInfo[i][9] * 0x2, 0x0, self.meshInfo[i][9])
+			#rapi.rpgBindBoneWeightBuffer(vertBuff, noesis.RPGEODATA_HALFFLOAT, 0x14, 0x6)
 			rapi.rpgCommitTriangles(faceBuff, noesis.RPGEODATA_USHORT, meshInfo[8], noesis.RPGEO_TRIANGLE, 1)
 			
 		elif meshInfo[4] == 1:
@@ -303,7 +299,7 @@ class irbFile(object):
 			rapi.rpgBindBoneIndexBufferOfs(vertBuff, noesis.RPGEODATA_UBYTE, 0x1C, 0x8, 4)
 			rapi.rpgBindBoneWeightBufferOfs(vertBuff, noesis.RPGEODATA_UBYTE, 0x1C, 0x0C, 0x4)
 			rapi.rpgBindUV1BufferOfs(vertBuff, noesis.RPGEODATA_HALFFLOAT, 0x1C, 0x10)
-			#rapi.rpgBindNormalBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x1C, 0x10)#FIXME
+			rapi.rpgBindNormalBufferOfs(vertBuff, noesis.RPGEODATA_SHORT, 0x1C, 0x10)#FIXME
 			rapi.rpgCommitTriangles(faceBuff, noesis.RPGEODATA_USHORT, meshInfo[8], noesis.RPGEO_TRIANGLE, 1)
 		rapi.rpgClearBufferBinds()
 			
